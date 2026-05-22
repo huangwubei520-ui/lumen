@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lumen · 使用演示 · 60 秒看懂怎么用</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Noto+Serif+SC:wght@400;500;600&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0a0907; --bg-2:#14110d; --card:#16130e; --card-2:#1c1812;
+    --ink:#f0e9d5; --ink-soft:rgba(240,233,213,.78); --ink-faint:rgba(240,233,213,.50); --ink-dim:rgba(240,233,213,.34);
+    --line:rgba(240,233,213,.10); --line-2:rgba(240,233,213,.18);
+    --accent:#f6c285; --accent-soft:rgba(246,194,133,.16); --accent-line:rgba(246,194,133,.45);
+    --green:#86d2a8; --blue:#9bc4e8; --red:#e89b8b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:radial-gradient(1200px 700px at 78% -8%, #1a160f 0%, var(--bg) 55%) fixed;
+    color:var(--ink); font-family:'Geist','Noto Sans SC',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased; overflow:hidden;
+  }
+  .mono{font-family:'Geist Mono',monospace}
+  .serif{font-family:'Instrument Serif','Noto Serif SC',serif}
+  em{font-family:'Instrument Serif',serif;font-style:italic;color:var(--accent);font-weight:400}
+
+  /* ===== shell ===== */
+  .shell{height:100vh;display:flex;flex-direction:column}
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 30px;border-bottom:1px solid var(--line);flex:0 0 auto;
+    background:rgba(10,9,7,.6);backdrop-filter:blur(8px);
+  }
+  .brand{display:flex;align-items:baseline;gap:12px}
+  .brand .mark{font-family:'Instrument Serif',serif;font-size:26px;letter-spacing:.5px}
+  .brand .mark b{font-style:italic;color:var(--accent);font-weight:400}
+  .brand .sub{font-size:11px;color:var(--ink-faint);letter-spacing:.18em;text-transform:uppercase}
+  .topbar .tag{font-family:'Geist Mono',monospace;font-size:11px;color:var(--ink-faint);letter-spacing:.16em;border:1px solid var(--line-2);border-radius:999px;padding:5px 12px}
+
+  /* progress dots */
+  .steps{display:flex;align-items:center;gap:7px}
+  .dot{width:9px;height:9px;border-radius:999px;border:1px solid var(--line-2);background:transparent;cursor:pointer;transition:.25s;padding:0}
+  .dot.done{background:var(--ink-dim);border-color:transparent}
+  .dot.active{background:var(--accent);border-color:transparent;box-shadow:0 0 0 4px var(--accent-soft);transform:scale(1.15)}
+
+  /* ===== stage ===== */
+  .stage-wrap{flex:1 1 auto;display:flex;align-items:center;justify-content:center;gap:34px;padding:30px 40px;min-height:0}
+  .device{
+    width:min(58vw,860px);max-height:78vh;flex:0 0 auto;
+    border-radius:16px;border:1px solid var(--line-2);overflow:hidden;
+    background:var(--bg-2);box-shadow:0 40px 90px -30px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.04);
+    display:flex;flex-direction:column;
+  }
+  .device-bar{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--line);background:rgba(0,0,0,.25);flex:0 0 auto}
+  .device-bar .d{width:11px;height:11px;border-radius:999px;background:var(--line-2)}
+  .device-bar .url{margin-left:10px;flex:1;font-family:'Geist Mono',monospace;font-size:11px;color:var(--ink-dim);background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:7px;padding:5px 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .screen{flex:1 1 auto;overflow:hidden;position:relative;padding:26px 30px}
+  .screen.center{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+
+  /* annotation panel */
+  .note{width:min(30vw,360px);flex:0 0 auto}
+  .note .eyebrow{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.22em;color:var(--accent);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+  .note .eyebrow span{height:1px;flex:1;background:var(--accent-line);opacity:.5}
+  .note h2{font-family:'Instrument Serif','Noto Serif SC',serif;font-weight:400;font-size:34px;line-height:1.18;letter-spacing:.5px;margin-bottom:16px}
+  .note p{font-size:15px;line-height:1.75;color:var(--ink-soft);margin-bottom:14px}
+  .note .kbd-tip{font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--ink-faint);border-top:1px solid var(--line);padding-top:14px;margin-top:4px;line-height:1.8}
+  .note .pillrow{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
+  .note .pill{font-family:'Geist Mono',monospace;font-size:11px;color:var(--ink-soft);border:1px solid var(--line-2);border-radius:999px;padding:5px 11px}
+
+  /* control bar */
+  .controls{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:18px;padding:16px;border-top:1px solid var(--line);background:rgba(10,9,7,.6);backdrop-filter:blur(8px)}
+  .ctrl{display:flex;align-items:center;gap:8px;background:transparent;border:1px solid var(--line-2);color:var(--ink-soft);font-family:'Geist',sans-serif;font-size:13px;border-radius:999px;padding:9px 18px;cursor:pointer;transition:.18s}
+  .ctrl:hover{border-color:var(--accent-line);color:var(--ink)}
+  .ctrl.primary{background:var(--ink);color:#1a1510;border-color:transparent;font-weight:600}
+  .ctrl.primary:hover{background:#fff}
+  .ctrl[disabled]{opacity:.3;cursor:not-allowed}
+  .autobar{width:200px;height:3px;border-radius:999px;background:var(--line);overflow:hidden}
+  .autobar i{display:block;height:100%;width:0;background:var(--accent);transition:width .15s linear}
+  .counter{font-family:'Geist Mono',monospace;font-size:12px;color:var(--ink-faint);min-width:56px;text-align:center}
+
+  /* ===== mock UI atoms (Lumen editorial look) ===== */
+  .m-head{display:grid;grid-template-columns:1fr 1.1fr;gap:20px;align-items:end;padding-bottom:16px;border-bottom:1px solid var(--line);margin-bottom:20px}
+  .m-eyebrow{font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.2em;color:var(--ink-faint);text-transform:uppercase;margin-bottom:8px}
+  .m-title{font-family:'Instrument Serif','Noto Serif SC',serif;font-size:27px;line-height:1.1;font-weight:400}
+  .m-lede{font-size:12.5px;color:var(--ink-faint);line-height:1.6}
+  .m-row{padding:13px 0;border-bottom:1px solid var(--line)}
+  .m-rownum{font-family:'Geist Mono',monospace;font-size:10px;color:var(--ink-dim);letter-spacing:.12em}
+  .m-rowtitle{font-family:'Noto Serif SC',serif;font-size:14px;margin:3px 0 9px}
+  .m-input{background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:9px;padding:11px 13px;font-size:12.5px;color:var(--ink-soft);min-height:20px}
+  .m-input.area{min-height:46px;line-height:1.6}
+  .m-input .ph{color:var(--ink-dim)}
+  .m-btn{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;border-radius:999px;padding:9px 17px;border:1px solid var(--line-2);color:var(--ink-soft)}
+  .m-btn.solid{background:var(--ink);color:#1a1510;border-color:transparent;font-weight:600}
+  .m-btn.cta{background:linear-gradient(100deg,#f6c285,#e0a45e);color:#231a0e;border-color:transparent;font-weight:600}
+
+  /* role cards */
+  .m-roles{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .m-rolecard{border:1px solid var(--line-2);border-radius:11px;padding:15px 16px;position:relative}
+  .m-rolecard .rk{font-family:'Geist Mono',monospace;font-size:10px;color:var(--ink-dim);letter-spacing:.14em}
+  .m-rolecard .rt{font-family:'Noto Serif SC',serif;font-size:16px;margin-top:7px}
+  .m-rolecard .rd{font-size:11.5px;color:var(--ink-faint);margin-top:5px;line-height:1.5}
+  .m-rolecard.on{border-color:var(--accent-line);background:var(--accent-soft)}
+  .m-rolecard.on::before{content:'';position:absolute;left:0;right:0;top:0;height:2px;background:var(--accent);border-radius:11px 11px 0 0}
+  .m-subgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-top:14px}
+  .m-sel{background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:11.5px;color:var(--ink-soft);display:flex;justify-content:space-between;align-items:center}
+  .m-sel .lbl{font-family:'Geist Mono',monospace;font-size:9px;color:var(--ink-dim);display:block;margin-bottom:3px;letter-spacing:.1em}
+
+  /* candidate grid */
+  .m-cands{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border:1px solid var(--line);border-radius:11px;overflow:hidden}
+  .m-cand{padding:15px 15px 16px;border-right:1px solid var(--line);position:relative}
+  .m-cand:last-child{border-right:none}
+  .m-cand .ck{font-family:'Geist Mono',monospace;font-size:10px;color:var(--ink-dim)}
+  .m-cand .ct{font-family:'Noto Serif SC',serif;font-size:13.5px;line-height:1.4;margin:8px 0 10px;min-height:54px}
+  .m-cand .cdash{font-size:11px;color:var(--ink-faint);line-height:1.7}
+  .m-cand .cdash div{padding-left:11px;position:relative}
+  .m-cand .cdash div::before{content:'—';position:absolute;left:0;color:var(--ink-dim)}
+  .m-cand.on{background:var(--accent-soft)}
+  .m-cand.on::before{content:'';position:absolute;left:0;right:0;top:0;height:2px;background:var(--accent)}
+  .m-cand .refresh{font-family:'Geist Mono',monospace;font-size:9.5px;color:var(--ink-dim);border:1px solid var(--line);border-radius:6px;padding:3px 8px;display:inline-block;margin-top:11px}
+
+  /* article stat strip */
+  .m-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:11px;overflow:hidden;margin-bottom:18px}
+  .m-stat{padding:14px 15px;border-right:1px solid var(--line)}
+  .m-stat:last-child{border-right:none}
+  .m-stat .sk{font-family:'Geist Mono',monospace;font-size:9.5px;color:var(--ink-faint);letter-spacing:.12em;text-transform:uppercase}
+  .m-stat .sv{font-family:'Instrument Serif',serif;font-style:italic;font-size:30px;line-height:1.1;margin-top:5px}
+  .m-stat .sv.ok{color:var(--green)} .m-stat .sv.warn{color:var(--accent)}
+  .m-artbody{font-size:12px;color:var(--ink-soft);line-height:1.85}
+  .m-artbody h4{font-family:'Noto Serif SC',serif;font-weight:600;font-size:15px;color:var(--ink);margin:0 0 9px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+  .m-artbody p{margin-bottom:9px}
+  .m-toolrow{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:16px}
+
+  /* image cards */
+  .m-imgs{display:flex;flex-direction:column;gap:11px}
+  .m-imgcard{display:grid;grid-template-columns:84px 1fr auto;gap:13px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+  .m-thumb{width:84px;height:50px;border-radius:7px;background:linear-gradient(135deg,#2a2218,#171310);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:18px}
+  .m-imgcard .ic-t{font-family:'Noto Serif SC',serif;font-size:12.5px;margin-bottom:4px}
+  .m-imgcard .ic-p{font-size:10.5px;color:var(--ink-faint);line-height:1.5;font-family:'Geist Mono',monospace}
+  .m-exportbar{margin-top:15px;border:1.5px solid var(--accent-line);border-radius:12px;padding:14px 16px;background:linear-gradient(100deg,rgba(246,194,133,.10),rgba(246,194,133,.02));display:flex;align-items:center;justify-content:space-between;gap:14px}
+  .m-exportbar .et{font-family:'Geist Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:.14em}
+  .m-exportbar .es{font-family:'Noto Serif SC',serif;font-size:13.5px;margin-top:4px}
+
+  /* spotlight: dim everything, glow the highlighted node */
+  .screen.spot .dimmable{opacity:.32;transition:opacity .4s}
+  .screen.spot .spot-on{opacity:1 !important;position:relative;z-index:2}
+  .spot-on.ring{box-shadow:0 0 0 2px var(--accent), 0 0 0 8px var(--accent-soft);border-radius:12px}
+
+  /* cover / outro hero */
+  .hero-mark{font-family:'Instrument Serif',serif;font-size:78px;line-height:1;letter-spacing:1px}
+  .hero-mark b{font-style:italic;color:var(--accent);font-weight:400}
+  .hero-sub{font-size:15px;color:var(--ink-faint);margin-top:14px;letter-spacing:.04em}
+  .hero-meta{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap;justify-content:center}
+  .hero-meta .p{font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--ink-soft);border:1px solid var(--line-2);border-radius:999px;padding:7px 14px}
+  .outro-steps{display:flex;flex-direction:column;gap:11px;width:100%;max-width:430px;margin-top:8px;text-align:left}
+  .outro-steps .os{display:flex;align-items:flex-start;gap:13px;padding:11px 0;border-bottom:1px solid var(--line)}
+  .outro-steps .os .n{font-family:'Geist Mono',monospace;font-size:11px;color:var(--accent);padding-top:3px}
+  .outro-steps .os .t{font-family:'Noto Serif SC',serif;font-size:14.5px}
+  .outro-steps .os .d{font-size:11.5px;color:var(--ink-faint);margin-top:3px}
+
+  .hint-float{position:fixed;bottom:96px;left:50%;transform:translateX(-50%);font-family:'Geist Mono',monospace;font-size:11px;color:var(--ink-dim);letter-spacing:.1em;pointer-events:none}
+
+  @media (max-width:1080px){
+    .stage-wrap{flex-direction:column;gap:18px;padding:18px}
+    .device{width:92vw;max-height:54vh}
+    .note{width:92vw}
+    .note h2{font-size:26px}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="topbar">
+    <div class="brand">
+      <span class="mark">Lu<b>m</b>en</span>
+      <span class="sub">使用演示 · How&nbsp;to</span>
+    </div>
+    <div class="steps" id="dots"></div>
+    <span class="tag" id="topcounter">01 / 07</span>
+  </div>
+
+  <div class="stage-wrap">
+    <div class="device">
+      <div class="device-bar">
+        <span class="d"></span><span class="d"></span><span class="d"></span>
+        <span class="url" id="urlbar">file:///Lumen.html</span>
+      </div>
+      <div class="screen" id="screen"></div>
+    </div>
+    <div class="note" id="note"></div>
+  </div>
+
+  <div class="controls">
+    <button class="ctrl" id="prevBtn">◀ 上一步</button>
+    <button class="ctrl primary" id="playBtn">⏸ 暂停</button>
+    <div class="autobar"><i id="autoFill"></i></div>
+    <span class="counter" id="counter">1 / 7</span>
+    <button class="ctrl" id="nextBtn">下一步 ▶</button>
+  </div>
+</div>
+<div class="hint-float">← → 切换 · 空格 播放/暂停 · 点圆点跳转</div>
+
+<script>
+/* ============ 演示数据:每一帧 = 一块界面 mock + 一段说明 ============ */
+const FRAMES = [
+  {
+    url:'file:///Lumen.html',
+    eyebrow:'00 · 总览',
+    title:'从一条链接,到一篇<em>能发的</em>长文',
+    body:'Lumen 是个单文件网页工具,双击就能用。它把写行业长文拆成 4 步,每步都接真模型(DeepSeek / 千问 / Kimi / Claude 可选),最后导出真正的 .docx。',
+    extra:'<div class="pillrow"><span class="pill">① 选角色+输入</span><span class="pill">② 标题大纲</span><span class="pill">③ 写正文·降AI痕</span><span class="pill">④ 配图·导出</span></div>',
+    tip:'按 → 或点「下一步」开始 · 全程约 60 秒',
+    screen: `
+      <div class="screen center">
+        <div class="hero-mark">Lu<b>m</b>en</div>
+        <div class="hero-sub">一个能上文章推荐的产品</div>
+        <div class="hero-meta">
+          <span class="p">真实性 · 降 AI 检出</span>
+          <span class="p">实时性 · 真新闻</span>
+          <span class="p">结合你的原话</span>
+        </div>
+        <div style="margin-top:30px" class="m-btn cta spot-target">开始写一篇 →</div>
+      </div>`,
+    centerScreen:true,
+    spot:'.spot-target', ring:true
+  },
+  {
+    url:'file:///Lumen.html  →  开始写一篇',
+    eyebrow:'步骤一 · 选角色',
+    title:'先告诉它<em>你是谁</em>',
+    body:'产品经理 / 其他岗位二选一(互斥),再选细分方向和年限。这一步会生成「作者身份」,贯穿后面的标题、大纲和正文——让文章带上你这一行的口吻,而不是一股 AI 通用腔。',
+    tip:'选了角色,作者人设就定了 · 不用每次重填',
+    screen:`
+      <div class="m-head dimmable">
+        <div><div class="m-eyebrow">01 · INPUT</div><div class="m-title">粘一条链接<br>从这里开始</div></div>
+        <div class="m-lede">选好角色,填参考链接和你的真实观点,Lumen 就能开写。右侧实时显示引擎与流程状态。</div>
+      </div>
+      <div class="m-row spot-target">
+        <div class="m-rownum">00 / ROLE · 你的身份</div>
+        <div class="m-roles" style="margin-top:9px">
+          <div class="m-rolecard on"><div class="rk">A</div><div class="rt">产品经理</div><div class="rd">AI / B端 / C端 / 增长 / 数据…</div></div>
+          <div class="m-rolecard"><div class="rk">B</div><div class="rt">其他岗位</div><div class="rd">运营 / 设计 / 营销 / 创业…</div></div>
+        </div>
+        <div class="m-subgrid">
+          <div class="m-sel"><div><span class="lbl">细分</span>AI 产品经理</div><span>▾</span></div>
+          <div class="m-sel"><div><span class="lbl">总年限</span>3 年</div><span>▾</span></div>
+          <div class="m-sel"><div><span class="lbl">AI 年限</span>2 年</div><span>▾</span></div>
+        </div>
+      </div>
+      <div class="m-row dimmable"><div class="m-rownum">01 / REFERENCE · 参考链接</div><div class="m-rowtitle">想对标的爆文</div><div class="m-input"><span class="ph">https://woshipm.com/…</span></div></div>`,
+    spot:'.spot-target', ring:true
+  },
+  {
+    url:'file:///Lumen.html  →  输入',
+    eyebrow:'步骤一 · 填料',
+    title:'最关键的一栏:<em>你的真实观点</em>',
+    body:'参考链接 + 笔记给「料」,但平台判「纯 AI」最主要的原因,是文章里没有作者本人的判断。所以「真实观点 / 亲历」是必填(≥30 字)——它会成为全文第一人称的主心骨,这是过审的根。工具只降统计痕迹,替代不了你的真知灼见。',
+    extra:'<div class="pillrow"><span class="pill">链接 · 对标</span><span class="pill">笔记 · .txt/.md/.docx/.pdf</span><span class="pill">真实观点 · 必填</span></div>',
+    tip:'笔记支持点选 / 拖拽 / 粘贴',
+    screen:`
+      <div class="m-head dimmable">
+        <div><div class="m-eyebrow">01 · INPUT</div><div class="m-title">填料</div></div>
+        <div class="m-lede">链接和笔记是素材,真实观点是灵魂。</div>
+      </div>
+      <div class="m-row dimmable"><div class="m-rownum">01 / REFERENCE</div><div class="m-rowtitle">参考链接</div><div class="m-input">https://woshipm.com/aigc/8xxxxxx.html</div></div>
+      <div class="m-row dimmable"><div class="m-rownum">02 / NOTES</div><div class="m-rowtitle">你的笔记 / 资料</div><div class="m-input area">把零散想法、调研、要点都丢进来…</div></div>
+      <div class="m-row spot-target">
+        <div class="m-rownum" style="color:var(--accent)">03 / VOICE · ✍️ 你的真实观点 / 亲历 <span style="color:var(--red)">必填</span></div>
+        <div class="m-rowtitle">这一段决定了它像不像「人写的」</div>
+        <div class="m-input area">我带过两个 AI 功能从 0 到 1,踩过最深的坑是把模型能力当成需求本身……(≥30 字)</div>
+      </div>`,
+    spot:'.spot-target', ring:true
+  },
+  {
+    url:'file:///Lumen.html  →  标题大纲',
+    eyebrow:'步骤二 · 挑写法',
+    title:'一次给你 <em>3 套</em> 标题大纲',
+    body:'Lumen 一次产出 3 个带钩子的候选(冲突 / 数字 / 反常识…),每个都配好了大纲骨架。挑一个,标题和每一节都能就地改;不满意点「单独刷新」只换这一个,或「再生成一组」追加更多。',
+    tip:'挑中后会高亮,下方可直接编辑标题与大纲',
+    screen:`
+      <div class="m-head dimmable">
+        <div><div class="m-eyebrow">02 · OUTLINE</div><div class="m-title">挑一套<br>写法</div></div>
+        <div class="m-lede">3 个候选可挑、可改、可单独刷新。</div>
+      </div>
+      <div class="m-cands spot-target">
+        <div class="m-cand on">
+          <div class="ck">01 · 选中</div>
+          <div class="ct">我带 AI 产品踩的 3 个坑,第 2 个差点让团队白干半年</div>
+          <div class="cdash"><div>把模型当需求</div><div>数据闭环没跑通</div><div>怎么纠偏</div></div>
+          <div class="refresh">🔄 单独刷新</div>
+        </div>
+        <div class="m-cand">
+          <div class="ck">02</div>
+          <div class="ct">为什么 90% 的 AI 功能上线即死?</div>
+          <div class="cdash"><div>幻觉与场景</div><div>成本结构</div><div>留存真相</div></div>
+          <div class="refresh">🔄 单独刷新</div>
+        </div>
+        <div class="m-cand">
+          <div class="ck">03</div>
+          <div class="ct">AI PM 两年,我重写了对「需求」的理解</div>
+          <div class="cdash"><div>旧框架失效</div><div>新判断标准</div><div>落地清单</div></div>
+          <div class="refresh">🔄 单独刷新</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px" class="dimmable">
+        <span class="m-eyebrow" style="margin:0">已选 01 · 不会重写</span>
+        <span class="m-btn solid">开始写正文 →</span>
+      </div>`,
+    spot:'.spot-target', ring:false
+  },
+  {
+    url:'file:///Lumen.html  →  正文',
+    eyebrow:'步骤三 · 写 + 降痕',
+    title:'真模型逐章写,<em>再降 AI 痕</em>',
+    body:'按大纲逐章生成正文,把你的真实观点和实时新闻揉进去。成稿后顶部有一条体检:AI 痕分、句长 CV、短句率、交付自检。觉得还有 AI 味,点「🛡️ 降 AI 痕」让模型逐段重写——实测能把套话稿从 high 压下来。',
+    extra:'<div class="pillrow"><span class="pill">🧬 重跑人味化</span><span class="pill">🧹 删套话</span><span class="pill">🛡️ 降 AI 痕</span></div>',
+    tip:'导出前若自检没过会拦一道,提醒你先补观点',
+    screen:`
+      <div class="m-head dimmable">
+        <div><div class="m-eyebrow">03 · ARTICLE</div><div class="m-title">成稿</div></div>
+        <div class="m-lede">逐章生成 · 可改 · 可降痕。</div>
+      </div>
+      <div class="m-toolrow dimmable">
+        <span class="m-btn">🧬 重跑人味化</span><span class="m-btn">🧹 删套话</span>
+        <span class="m-btn cta">🛡️ 降 AI 痕</span>
+      </div>
+      <div class="m-stats spot-target">
+        <div class="m-stat"><div class="sk">AI 痕分</div><div class="sv ok">44</div></div>
+        <div class="m-stat"><div class="sk">句长 CV</div><div class="sv">0.61</div></div>
+        <div class="m-stat"><div class="sk">短句率</div><div class="sv">28%</div></div>
+        <div class="m-stat"><div class="sk">交付自检</div><div class="sv ok" style="font-size:22px">PASS</div></div>
+      </div>
+      <div class="m-artbody dimmable">
+        <h4>把模型能力当成需求,是我交过最贵的学费</h4>
+        <p>第一个项目上线那天,后台调用量很好看,但留存第三天就塌了。我们花了两周才承认:用户要的不是「能对话」,是把一件具体的事办成。</p>
+        <p>这件事后来改变了我评估需求的顺序——先问场景能不能闭环,再谈模型。</p>
+      </div>`,
+    spot:'.spot-target', ring:false
+  },
+  {
+    url:'file:///Lumen.html  →  配图 & 导出',
+    eyebrow:'步骤四 · 配图 + 导出',
+    title:'配好图,导出<em>真 .docx</em>',
+    body:'每一章给一条纯视觉的配图提示词(可直接喂 GPT/即梦/MJ 出图),把生成好的图拖回来。最后一键导出真正的 Word .docx——不带 [N] 引用标记和参考新闻段,排版干净,Pages / Word 都能直接打开。不想配图也能只拿纯文字稿。',
+    extra:'<div class="pillrow"><span class="pill">每章一条提示词</span><span class="pill">拖 / 粘 / 选 上传图</span><span class="pill">导出 .docx / .md / .txt</span></div>',
+    tip:'导出已自动剔除 [N] 与参考新闻段',
+    screen:`
+      <div class="m-head dimmable">
+        <div><div class="m-eyebrow">04 · INTEGRATE & EXPORT</div><div class="m-title">配图 · 导出</div></div>
+        <div class="m-lede">提示词 → 出图 → 整合成稿。</div>
+      </div>
+      <div class="m-imgs dimmable">
+        <div class="m-imgcard"><div class="m-thumb">🖼️</div><div><div class="ic-t">第 1 章 · 配图</div><div class="ic-p">a desk with a glowing screen, warm dusk light, 16:9, no text…</div></div><span class="m-btn" style="font-size:11px">复制</span></div>
+        <div class="m-imgcard"><div class="m-thumb">🖼️</div><div><div class="ic-t">第 2 章 · 配图</div><div class="ic-p">two diverging paths on a misty map, cinematic, 16:9…</div></div><span class="m-btn" style="font-size:11px">复制</span></div>
+      </div>
+      <div class="m-exportbar spot-target">
+        <div><div class="et">EXPORT · 真 .docx</div><div class="es">一键导出 · Word / Pages 直接打开</div></div>
+        <span class="m-btn cta">⬇ 导出 .docx</span>
+      </div>`,
+    spot:'.spot-target', ring:true
+  },
+  {
+    url:'file:///Lumen.html',
+    eyebrow:'就这 4 步',
+    title:'现在<em>换你试试</em>',
+    body:'记住一句话:工具帮你降 AI 痕、配图、导出,但真正让文章过审、让人想读的,是第 3 步里你那段真实观点。',
+    tip:'设置里可换模型服务商 · 各家 Key 各存',
+    screen:`
+      <div class="screen center" style="padding:30px 36px">
+        <div style="font-family:'Instrument Serif',serif;font-style:italic;font-size:40px;color:var(--accent);margin-bottom:6px">4 步,搞定一篇</div>
+        <div class="outro-steps">
+          <div class="os"><div class="n">01</div><div><div class="t">选角色 + 填料</div><div class="d">身份 · 链接 · 笔记 · 你的真实观点(必填)</div></div></div>
+          <div class="os"><div class="n">02</div><div><div class="t">挑标题大纲</div><div class="d">3 个带钩子的候选,可改可刷新</div></div></div>
+          <div class="os"><div class="n">03</div><div><div class="t">写正文 + 降 AI 痕</div><div class="d">真模型逐章写,体检 + 一键降痕</div></div></div>
+          <div class="os"><div class="n">04</div><div><div class="t">配图 + 导出</div><div class="d">提示词出图,导出真 .docx</div></div></div>
+        </div>
+        <div style="margin-top:26px;cursor:pointer" class="m-btn cta spot-target" onclick="window.open('index.html','_blank')">打开 Lumen,开始写第一篇 →</div>
+      </div>`,
+    centerScreen:true,
+    spot:'.spot-target', ring:true
+  }
+];
+
+/* ============ 播放器 ============ */
+const AUTO_MS = 6500;
+let idx = 0, playing = true, timer = null, rafStart = 0, rafId = null;
+
+const screen = document.getElementById('screen');
+const note = document.getElementById('note');
+const dots = document.getElementById('dots');
+const urlbar = document.getElementById('urlbar');
+const counter = document.getElementById('counter');
+const topcounter = document.getElementById('topcounter');
+const autoFill = document.getElementById('autoFill');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const playBtn = document.getElementById('playBtn');
+
+// build dots
+FRAMES.forEach((_, i) => {
+  const b = document.createElement('button');
+  b.className = 'dot';
+  b.onclick = () => { goto(i); };
+  dots.appendChild(b);
+});
+
+function pad(n){ return String(n).padStart(2,'0'); }
+
+function render(){
+  const f = FRAMES[idx];
+  urlbar.textContent = f.url;
+  // screen
+  if (f.centerScreen) {
+    screen.className = 'screen center spot';
+    const tmp = document.createElement('div');
+    tmp.innerHTML = f.screen.trim();
+    const inner = tmp.firstElementChild;        // 提供的是完整 <div class="screen center">…</div>,取其内层
+    screen.innerHTML = inner ? inner.innerHTML : f.screen;
+  } else {
+    screen.className = 'screen spot';
+    screen.innerHTML = f.screen;
+  }
+  // apply spotlight target
+  if (f.spot) {
+    const t = screen.querySelector(f.spot);
+    if (t) { t.classList.add('spot-on'); if (f.ring) t.classList.add('ring'); }
+  } else {
+    screen.classList.remove('spot');
+  }
+  // note
+  note.innerHTML = `
+    <div class="eyebrow">${f.eyebrow}<span></span></div>
+    <h2>${f.title}</h2>
+    <p>${f.body}</p>
+    ${f.extra||''}
+    ${f.tip?`<div class="kbd-tip">💡 ${f.tip}</div>`:''}
+  `;
+  // dots + counters
+  [...dots.children].forEach((d,i)=>{
+    d.className = 'dot' + (i===idx?' active':'') + (i<idx?' done':'');
+  });
+  counter.textContent = `${idx+1} / ${FRAMES.length}`;
+  topcounter.textContent = `${pad(idx+1)} / ${pad(FRAMES.length)}`;
+  prevBtn.disabled = idx===0;
+  nextBtn.textContent = idx===FRAMES.length-1 ? '完成 ✓' : '下一步 ▶';
+}
+
+function startAuto(){
+  cancelAnimationFrame(rafId);
+  clearTimeout(timer);
+  if (!playing) { autoFill.style.width='0%'; return; }
+  rafStart = performance.now();
+  const tick = (now)=>{
+    const p = Math.min(1,(now-rafStart)/AUTO_MS);
+    autoFill.style.width = (p*100)+'%';
+    if (p<1 && playing) rafId = requestAnimationFrame(tick);
+  };
+  rafId = requestAnimationFrame(tick);
+  timer = setTimeout(()=>{ next(true); }, AUTO_MS);
+}
+
+function goto(i){
+  idx = (i+FRAMES.length)%FRAMES.length;
+  render();
+  startAuto();
+}
+function next(auto){
+  if (idx===FRAMES.length-1){
+    if (auto){ playing=false; updatePlayBtn(); autoFill.style.width='100%'; clearTimeout(timer); cancelAnimationFrame(rafId); return; }
+    idx=0; // manual click on last = loop to start
+  } else idx++;
+  render(); startAuto();
+}
+function prev(){ if(idx>0){ idx--; render(); startAuto(); } }
+function updatePlayBtn(){ playBtn.textContent = playing ? '⏸ 暂停' : '▶ 播放'; }
+function togglePlay(){
+  playing = !playing; updatePlayBtn();
+  if (playing) startAuto(); else { clearTimeout(timer); cancelAnimationFrame(rafId); }
+}
+
+prevBtn.onclick = prev;
+nextBtn.onclick = ()=>next(false);
+playBtn.onclick = togglePlay;
+document.addEventListener('keydown', e=>{
+  if (e.key==='ArrowRight'){ next(false); }
+  else if (e.key==='ArrowLeft'){ prev(); }
+  else if (e.key===' '){ e.preventDefault(); togglePlay(); }
+});
+
+render();
+startAuto();
+</script>
+</body>
+</html>
